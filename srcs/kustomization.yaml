@@ -1,5 +1,9 @@
 resources:
   - metallb.yaml
   - nginx.yaml
-
-
+  - ftps.yaml
+  - mysql.yaml
+  - phpmyadmin.yaml
+  - wordpress.yaml
+  - influxdb.yaml
+  - grafana.yaml

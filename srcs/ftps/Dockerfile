@@ -2,7 +2,7 @@ FROM alpine:latest
 
 MAINTAINER nforay
 
-EXPOSE 21
+EXPOSE 21 30000-30004
 
 RUN apk update
 RUN apk add openrc openssl vsftpd
@@ -18,4 +18,4 @@ VOLUME /sys/fs/cgroup
 
 COPY /srcs/vsftpd.conf /etc/vsftpd/vsftpd.conf
 
-ENTRYPOINT ["sh", "-c", "rc-status; rc-service vsftpd start; /bin/sh"]
+ENTRYPOINT ["sh", "-c", "rc-status; rc-service vsftpd start; crond -f"]

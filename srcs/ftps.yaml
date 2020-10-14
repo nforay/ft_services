@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ftps-svc
+  labels:
+    app: ftps
+  annotations:
+    metallb.universe.tf/allow-shared-ip: ip-pools
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 21
+      protocol: TCP
+      name: ftps
+      targetPort: 21
+    - port: 30000
+      name: ftps-pasv-30000
+      protocol: TCP
+    - port: 30001
+      name: ftps-pasv-30001
+      protocol: TCP
+    - port: 30002
+      name: ftps-pasv-30002
+      protocol: TCP
+    - port: 30003
+      name: ftps-pasv-30003
+      protocol: TCP
+    - port: 30004
+      name: ftps-pasv-30004
+      protocol: TCP
+  selector:
+    app: ftps
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ftps-deploy
+  labels:
+    app: ftps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ftps
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ftps
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: ftps
+        image: img_ftps
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - pgrep vsftpd
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 21
+        - containerPort: 30000
+        - containerPort: 30001
+        - containerPort: 30002
+        - containerPort: 30003
+        - containerPort: 30004
