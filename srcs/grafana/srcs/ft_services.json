@@ -1639,8 +1639,8 @@
           "tags": [
             {
               "key": "container_name",
-              "operator": "=",
-              "value": "k8s_influxdb_influxdb-deploy-b9949d479-wsbq7_default_c901f874-7508-4c10-899f-07f687c7ba0f_0"
+              "operator": "=~",
+              "value": "/.*influxdb-deploy.*/"
             }
           ]
         }
@@ -1729,8 +1729,8 @@
           "tags": [
             {
               "key": "pod_name",
-              "operator": "=",
-              "value": "influxdb-deploy-b9949d479-wsbq7"
+              "operator": "=~",
+              "value": "/.*influxdb-deploy.*/"
             }
           ]
         }
@@ -1834,8 +1834,8 @@
           "tags": [
             {
               "key": "container_name",
-              "operator": "=",
-              "value": "k8s_ftps_ftps-deploy-5c987b9fb-jh7q4_default_8ef8b0b2-2d6c-4dc1-adb9-f6c6a4eeb5ac_0"
+              "operator": "=~",
+              "value": "/.*ftps-deploy.*/"
             }
           ]
         }

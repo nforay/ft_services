@@ -1,13 +1,33 @@
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: influxdb-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data"
+  claimRef:
+      namespace: default
+      name: influxdb-pv-claim
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: influxdb-data
+  name: influxdb-pv-claim
+  labels:
+    app: influxdb
 spec:
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 750Mi
 ---
 apiVersion: v1
 kind: Service
@@ -64,13 +84,13 @@ spec:
         - containerPort: 8125
         volumeMounts:
             - mountPath: /var/lib/influxdb
-              name: influxdb-data
+              name: influxdb-persistent-storage
             - mountPath: "/var/run/docker.sock"
               name: influxdb-endpoint
       volumes:
-        - name: influxdb-data
+        - name: influxdb-persistent-storage
           persistentVolumeClaim:
-            claimName: influxdb-data
+            claimName: influxdb-pv-claim
         - name: influxdb-endpoint
           hostPath:
             path: /var/run/docker.sock
@@ -82,7 +102,7 @@ metadata:
   labels:
     app: influxdb
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: influxdb

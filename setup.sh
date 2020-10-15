@@ -1,16 +1,29 @@
 #/bin/bash
 #in case of fire use: docker system prune -a
-
 logdate() {
   while IFS= read -r line; do
     printf '%s %s\n' "[$(date +"%Y-%m-%d %T")]" "$line";
   done
 }
 
-#minikube status -> check return, delete si déja présent
+#Check minikube version
+minikube version | grep "minikube version: v1.13.1" >> /dev/null
+if [ "$?" != 0 ];then
+echo "\e[5m\e[33m[Error]\e[0m Minikube version mismatch. Please update using the following command:"
+echo "curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.13.1/minikube-linux-amd64 &&\nchmod +x minikube &&\nsudo mkdir -p /usr/local/bin/ &&\nsudo install minikube /usr/local/bin/"
+exit 1
+fi
+
+#Check if minikube is already running
+minikube status >> /dev/null
+if [ "$?" != 85 ];then
+minikube delete
+fi
 echo "\e[33m[\e[32mft_services\e[33m] Starting Minikube, \e[5mthis may take a few minutes...\e[0m"
+
 #Add user to docker group
 echo $(whoami) | sudo -S usermod -aG docker $(whoami) > /dev/null
+
 #Start Minikube
 minikube start --vm-driver=docker
 minikube addons enable metrics-server
@@ -18,13 +31,13 @@ minikube addons enable metallb
 minikube addons enable dashboard
 eval $(minikube docker-env)
 echo "🌟  Deploying MetalLB ..."
+echo "🌟  Begin setup log (tail -f setup.log)"
 echo "🌟  Begin setup log" | logdate > setup.log
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/main/manifests/namespace.yaml | logdate >> setup.log
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/main/manifests/metallb.yaml | logdate >> setup.log
 kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
-#Store Minikube IP
-#IP=$(kubectl get node -o=custom-columns='DATA:status.addresses[0].address' | sed -n 2p)
-#echo "\e[31mMinikube IP:\t\e[39m$IP"
+
+#Build docker images
 echo "🐳  [1/7] Docker: Building Nginx ..."
 docker build -t img_nginx srcs/nginx | logdate >> setup.log
 echo "🐳  [2/7] Docker: Building FTPS ..."
@@ -41,5 +54,12 @@ echo "🐳  [7/7] Docker: Building Grafana ..."
 docker build -t img_grafana srcs/grafana | logdate >> setup.log
 kubectl apply -k ./srcs/. | logdate >> setup.log
 echo "🌟  Starting Dashboard ..."
-sleep 10;
+sleep 20;
+echo "🌟  Service:\t\tLogin:\t\tPassword:"
+echo "📚  FTPS:\t\tftps\t\tpassword"
+echo "📚  Wordpress:\t\tadmin\t\tpassword"
+echo "📚  Grafana:\t\tadmin\t\tadmin"
+echo "📚  Phpmyadmin:\t\tadmin\t\tpassword"
+echo "📚  InfluxDB:\t\tadmin\t\tpassword"
+#Done
 minikube dashboard

@@ -17,7 +17,7 @@ RUN apk add syslog-ng openrc \
 
 COPY /srcs/grafana.ini /etc/grafana.ini
 COPY /srcs/datasource.yaml /var/lib/grafana/provisioning/datasources/
-COPY /srcs/dashboards.yaml /var/lib/grafana/provisioning/dashboards/
+COPY /srcs/dashboard.yaml /var/lib/grafana/provisioning/dashboards/
 COPY ./srcs/*.json /var/lib/grafana/dashboards/
 
 VOLUME /sys/fs/cgroup
