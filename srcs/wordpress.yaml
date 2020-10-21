@@ -40,7 +40,7 @@ spec:
             command:
             - /bin/sh
             - -c
-            - rc-service nginx status || exit 1; rc-service php-fpm7 status || exit 1;
+            - rc-service nginx status || exit 1; ps -o user,comm,args | egrep -i "^root[ ]*php-fpm7.*\.conf" || exit 1;
           initialDelaySeconds: 10
           periodSeconds: 5
         imagePullPolicy: Never

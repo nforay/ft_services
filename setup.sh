@@ -6,23 +6,23 @@ logdate() {
   done
 }
 
+#Add user to docker group
+echo $(whoami) | sudo -S usermod -aG docker $(whoami) >/dev/null 2>&1
+
 #Check minikube version
-minikube version | grep "minikube version: v1.13.1" >> /dev/null
+minikube version | grep "minikube version: v1.13.1" >/dev/null 2>&1
 if [ "$?" != 0 ];then
-echo "\e[5m\e[33m[Error]\e[0m Minikube version mismatch. Please update using the following command:"
-echo "curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.13.1/minikube-linux-amd64 &&\nchmod +x minikube &&\nsudo mkdir -p /usr/local/bin/ &&\nsudo install minikube /usr/local/bin/"
-exit 1
+echo "\e[5m\e[33m[Warning]\e[0m Minikube version mismatch. Updating..."
+echo $(whoami) | sudo -S curl -sLo minikube https://storage.googleapis.com/minikube/releases/v1.13.1/minikube-linux-amd64 \
+  && sudo chmod +x minikube && sudo mkdir -p /usr/local/bin/ && sudo install minikube /usr/local/bin/ && sudo rm -f minikube
 fi
 
 #Check if minikube is already running
-minikube status >> /dev/null
+minikube status >/dev/null 2>&1
 if [ "$?" != 85 ];then
 minikube delete
 fi
 echo "\e[33m[\e[32mft_services\e[33m] Starting Minikube, \e[5mthis may take a few minutes...\e[0m"
-
-#Add user to docker group
-echo $(whoami) | sudo -S usermod -aG docker $(whoami) > /dev/null
 
 #Start Minikube
 minikube start --vm-driver=docker

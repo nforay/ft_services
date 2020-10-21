@@ -75,7 +75,7 @@ spec:
             command:
             - /bin/sh
             - -c
-            - rc-service influxdb status || exit 1; rc-service telegraf status || exit 1;
+            - ps -o user,comm,args | egrep -i "^influxd.*\.conf" || exit 1; ps -o user,comm,args | egrep -i "^telegraf.*\.conf" || exit 1;
           initialDelaySeconds: 10
           periodSeconds: 5
         imagePullPolicy: Never

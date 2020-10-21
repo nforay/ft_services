@@ -58,7 +58,7 @@ spec:
             command:
             - /bin/sh
             - -c
-            - pgrep vsftpd
+            - ps -o user,comm,args | egrep -i "^root[ ]*vsftpd.*\.conf" || exit 1;
           initialDelaySeconds: 10
           periodSeconds: 5
         imagePullPolicy: Never
